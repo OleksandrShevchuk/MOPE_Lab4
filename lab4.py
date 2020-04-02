@@ -65,63 +65,72 @@ def fisher_criteria(Y_matrix, d):
         return Fp < fisher(0.95, N, m, d)
     return Fp < fisher(0.95, N, m, d)
 
-m = 6
-N = 8
-x1min, x1max = -30, 0
-x2min, x2max = -15, 35
-x3min, x3max = -30, -25
-def_matrx = np.array([[x1min, x1max], [x2min, x2max], [x3min, x3max]])
-norm_factors = np.array(list(product("01", repeat=3)), dtype=np.int)
-norm_factors[norm_factors == 0] = -1
-norm_factors = np.insert(norm_factors, 0, 1, axis=1)
-factors = np.empty((8, 3))
-for i in range(len(norm_factors)):
-    for j in range(1, len(norm_factors[i])):
-        if j == 1:
-            if norm_factors[i, j] == -1:
-                factors[i, j-1] = 10
-            elif norm_factors[i, j] == 1:
-                factors[i, j-1] = 60
-        elif j == 2:
-            if norm_factors[i, j] == -1:
-                factors[i, j-1] = -35
-            elif norm_factors[i, j] == 1:
-                factors[i, j-1] = 15
-        elif j == 3:
-            if norm_factors[i, j] == -1:
-                factors[i, j-1] = 10
-            elif norm_factors[i, j] == 1:
-                factors[i, j-1] = 15
-factors = np.insert(factors, 0, 1, axis=1)
-Y_matrix = np.random.randint(200 + np.mean(def_matrx, axis=0)[0],
-                             200 + np.mean(def_matrx, axis=0)[1], size=(N, m))
-mean_Y = np.mean(Y_matrix, axis=1)
-combination = list(combinations(range(1, 4), 2))
-for i in combination:
-    factors = np.append(factors, np.reshape(factors[:, i[0]]*factors[:, i[1]], (8, 1)), axis=1)
-    norm_factors = np.append(norm_factors, np.reshape(norm_factors[:, i[0]]*norm_factors[:, i[1]], (8, 1)), axis=1)
-factors = np.append(factors, np.reshape(factors[:, 1]*factors[:, 2]*factors[:, 3], (8, 1)), axis=1)
-norm_factors = np.append(norm_factors, np.reshape(norm_factors[:, 1]*norm_factors[:, 2]*norm_factors[:, 3], (8, 1)), axis=1)
 
-if cohran(Y_matrix):
-    b_natural = np.linalg.lstsq(factors, mean_Y, rcond=None)[0]
-    b_norm = np.linalg.lstsq(norm_factors, mean_Y, rcond=None)[0]
-    check1 = np.sum(b_natural * factors, axis=1)
-    check2 = np.sum(b_norm * norm_factors, axis=1)
-    indexes = students_t_test(norm_factors, Y_matrix)
-    print("Фактори: \n", factors)
-    print("Нормована матриця факторів: \n", norm_factors)
-    print("Функції відгуку: \n", Y_matrix)
-    print("Середні значення У: ", mean_Y)
-    print("Натуралізовані коефіціенти: ", b_natural)
-    print("Нормовані коефіціенти: ", b_norm)
-    print("Перевірка 1: ", check1)
-    print("Перевірка 2: ", check2)
-    print("Індекси коефіціентів, які задовольняють критерію Стьюдента: ", np.array(indexes)[0])
-    print("Критерій Стьюдента: ", np.sum(b_natural[indexes] * np.reshape(factors[:, indexes], (N, np.size(indexes))), axis=1))
-    if fisher_criteria(Y_matrix, np.size(indexes)):
-        print("Рівняння регресії є адекватним оригіналу.")
+while True:
+    m = 6
+    N = 8
+    x1min, x1max = -30, 0
+    x2min, x2max = -15, 35
+    x3min, x3max = -30, -25
+    def_matrx = np.array([[x1min, x1max], [x2min, x2max], [x3min, x3max]])
+    norm_factors = np.array(list(product("01", repeat=3)), dtype=np.int)
+    norm_factors[norm_factors == 0] = -1
+    norm_factors = np.insert(norm_factors, 0, 1, axis=1)
+    factors = np.empty((8, 3))
+    for i in range(len(norm_factors)):
+        for j in range(1, len(norm_factors[i])):
+            if j == 1:
+                if norm_factors[i, j] == -1:
+                    factors[i, j - 1] = -30
+                elif norm_factors[i, j] == 1:
+                    factors[i, j - 1] = 0
+            elif j == 2:
+                if norm_factors[i, j] == -1:
+                    factors[i, j - 1] = -15
+                elif norm_factors[i, j] == 1:
+                    factors[i, j - 1] = 35
+            elif j == 3:
+                if norm_factors[i, j] == -1:
+                    factors[i, j - 1] = -30
+                elif norm_factors[i, j] == 1:
+                    factors[i, j - 1] = -25
+    factors = np.insert(factors, 0, 1, axis=1)
+    Y_matrix = np.random.randint(200 + np.mean(def_matrx, axis=0)[0],
+                                 200 + np.mean(def_matrx, axis=0)[1], size=(N, m))
+    mean_Y = np.mean(Y_matrix, axis=1)
+    combination = list(combinations(range(1, 4), 2))
+    for i in combination:
+        factors = np.append(factors, np.reshape(factors[:, i[0]] * factors[:, i[1]], (8, 1)), axis=1)
+        norm_factors = np.append(norm_factors, np.reshape(norm_factors[:, i[0]] * norm_factors[:, i[1]], (8, 1)),
+                                 axis=1)
+    factors = np.append(factors, np.reshape(factors[:, 1] * factors[:, 2] * factors[:, 3], (8, 1)), axis=1)
+    norm_factors = np.append(norm_factors,
+                             np.reshape(norm_factors[:, 1] * norm_factors[:, 2] * norm_factors[:, 3], (8, 1)), axis=1)
+
+    if cohran(Y_matrix):
+        b_natural = np.linalg.lstsq(factors, mean_Y, rcond=None)[0]
+        b_norm = np.linalg.lstsq(norm_factors, mean_Y, rcond=None)[0]
+        check1 = np.sum(b_natural * factors, axis=1)
+        check2 = np.sum(b_norm * norm_factors, axis=1)
+        indexes = students_t_test(norm_factors, Y_matrix)
+        print("Фактори: \n", factors)
+        print("Нормована матриця факторів: \n", norm_factors)
+        print("Функції відгуку: \n", Y_matrix)
+        print("Середні значення У: ", mean_Y)
+        print("Натуралізовані коефіціенти: ", b_natural)
+        print("Нормовані коефіціенти: ", b_norm)
+        print("Перевірка 1: ", check1)
+        print("Перевірка 2: ", check2)
+        print("Індекси коефіціентів, які задовольняють критерію Стьюдента: ", np.array(indexes)[0])
+        print("Критерій Стьюдента: ",
+              np.sum(b_natural[indexes] * np.reshape(factors[:, indexes], (N, np.size(indexes))), axis=1))
+        if fisher_criteria(Y_matrix, np.size(indexes)):
+            print("Рівняння регресії є адекватним оригіналу.")
+            break
+        else:
+            print("Рівняння регресії не є адекватним оригіналу.")
+            continue
     else:
-        print("Рівняння регресії не є адекватним оригіналу.")
-else:
-    print("Дисперсія неоднорідна!")
+        print("Дисперсія неоднорідна!")
+        m += 1
+        continue
